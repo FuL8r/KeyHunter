@@ -2,7 +2,8 @@ from vulnrag.config import Settings
 
 
 def test_defaults():
-    s = Settings()
+    # Pin _env_file=None so this tests code defaults, independent of any local .env.
+    s = Settings(_env_file=None)
     assert s.nvd_start_date == "2019-01-01"
     assert s.qdrant_host == "localhost"
     assert s.qdrant_port == 6333
