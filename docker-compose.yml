@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_rag
+    ports:
+      - "6333:6333" # HTTP API и Веб-панель
+      - "6334:6334" # gRPC API (для быстрой передачи данных)
+    volumes:
+      - ./qdrant_storage:/qdrant/storage:z
+    restart: unless-stopped
+  
