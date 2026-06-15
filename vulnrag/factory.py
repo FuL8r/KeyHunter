@@ -9,7 +9,7 @@ def build_components(settings: Settings | None = None):
     Used by the API server, the sync job, and notebooks so they all share the
     same real Qdrant — never the `:memory:` test instance."""
     s = settings or Settings()
-    client = QdrantClient(host=s.qdrant_host, port=s.qdrant_port)
+    client = QdrantClient(host=s.qdrant_host, port=s.qdrant_port, timeout=30)
     store = VulnStore(client, s.collection, s.embed_dim)
     embedder = OllamaEmbedder(s.embed_model, s.ollama_host)
     llm = OllamaLLM(s.llm_model, s.ollama_host)
