@@ -37,3 +37,21 @@ def test_answer_empty_when_nothing_found():
     result = answer("Is brandnewlib 1.0 safe?", embedder=emb, store=store, llm=llm)
     assert result.verdict == "not_found"
     assert result.cves == []
+
+
+def test_answer_unconfirmed_when_no_version():
+    store, emb = _store()
+    llm = StubLLM(reply="Найдены потенциальные уязвимости")
+    result = answer("Безопасен ли log4j?", embedder=emb, store=store, llm=llm)
+    assert result.verdict == "unconfirmed"
+    assert result.cves[0]["cve_id"] == "CVE-2021-44228"
+    assert llm.last_prompt is not None  # LLM IS called for potential matches
+
+
+def test_answer_safe_when_version_out_of_range():
+    store, emb = _store()
+    llm = StubLLM(reply="ignored")
+    result = answer("Is log4j 2.16.0 safe?", embedder=emb, store=store, llm=llm)
+    assert result.verdict == "safe"
+    assert result.cves == []
+    assert llm.last_prompt is None  # LLM NOT called when no CVEs to ground on
