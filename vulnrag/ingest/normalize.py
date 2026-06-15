@@ -57,3 +57,39 @@ def normalize_nvd(raw: dict) -> Vulnerability:
         published=_to_date(cve["published"]),
         last_modified=_to_date(cve["lastModified"]),
     )
+
+
+def kev_cve_ids(kev_raw: dict) -> set[str]:
+    return {e["cveID"] for e in kev_raw.get("vulnerabilities", [])}
+
+
+def osv_fixed_versions(osv_records: list[dict]) -> dict[str, list[str]]:
+    """Map each aliased CVE id -> list of 'fixed' versions from OSV ranges."""
+    out: dict[str, list[str]] = {}
+    for rec in osv_records:
+        fixed = []
+        for aff in rec.get("affected", []):
+            for rng in aff.get("ranges", []):
+                for ev in rng.get("events", []):
+                    if "fixed" in ev:
+                        fixed.append(ev["fixed"])
+        for alias in rec.get("aliases", []):
+            if alias.startswith("CVE-"):
+                out.setdefault(alias, [])
+                out[alias].extend(f for f in fixed if f not in out[alias])
+    return out
+
+
+def merge_enrichment(v: Vulnerability, kev_ids: set[str],
+                     osv_fixed: dict[str, list[str]]) -> Vulnerability:
+    sources = list(v.sources)
+    if v.cve_id in kev_ids:
+        v.is_kev = True
+        if "kev" not in sources:
+            sources.append("kev")
+    if v.cve_id in osv_fixed:
+        v.fixed_versions = list(dict.fromkeys(v.fixed_versions + osv_fixed[v.cve_id]))
+        if "osv" not in sources:
+            sources.append("osv")
+    v.sources = sources
+    return v
