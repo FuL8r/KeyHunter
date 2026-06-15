@@ -1,0 +1,5 @@
+{"id": "GHSA-jfh8-c2jp-5v3q", "summary": "Log4j RCE",
+ "aliases": ["CVE-2021-44228"],
+ "affected": [{"package": {"ecosystem": "Maven", "name": "org.apache.logging.log4j:log4j-core"},
+   "ranges": [{"type": "ECOSYSTEM", "events": [{"introduced": "2.0"}, {"fixed": "2.15.0"}]}]}],
+ "references": [{"url": "https://github.com/advisories/GHSA-jfh8-c2jp-5v3q"}]}

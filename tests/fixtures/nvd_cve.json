@@ -1,0 +1,19 @@
+{
+  "cve": {
+    "id": "CVE-2021-44228",
+    "published": "2021-12-10T10:15:09.143",
+    "lastModified": "2023-04-03T20:15:08.493",
+    "descriptions": [
+      {"lang": "en", "value": "Apache Log4j2 JNDI features do not protect against attacker controlled LDAP leading to RCE."},
+      {"lang": "es", "value": "ignorar"}
+    ],
+    "metrics": {"cvssMetricV31": [{"cvssData": {"baseScore": 10.0, "baseSeverity": "CRITICAL"}}]},
+    "configurations": [
+      {"nodes": [{"cpeMatch": [
+        {"criteria": "cpe:2.3:a:apache:log4j:*:*:*:*:*:*:*:*",
+         "versionStartIncluding": "2.0", "versionEndExcluding": "2.15.0"}
+      ]}]}
+    ],
+    "references": [{"url": "https://logging.apache.org/log4j/2.x/security.html"}]
+  }
+}
