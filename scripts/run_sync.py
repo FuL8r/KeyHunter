@@ -20,6 +20,7 @@ def main():
         fetch_kev=fetch_kev,
         fetch_osv=fetch_osv,
         now=now,
+        start_date=s.nvd_start_date,
     )
     print(report)
 

@@ -21,7 +21,8 @@ from vulnrag.ingest.normalize import (
 from vulnrag.index.embedder import index_vulnerabilities
 
 
-def run_sync(*, store, embedder, state, fetch_nvd, fetch_kev, fetch_osv, now):
+def run_sync(*, store, embedder, state, fetch_nvd, fetch_kev, fetch_osv, now,
+             start_date: str = "2019-01-01T00:00:00"):
     """Fetch NVD (backfill or delta), enrich with KEV/OSV, index. Each source's
     cursor advances only on its own success."""
     report = {"indexed": 0, "errors": {}}
@@ -29,7 +30,7 @@ def run_sync(*, store, embedder, state, fetch_nvd, fetch_kev, fetch_osv, now):
     # --- NVD (required base) ---
     nvd_since = state.last_sync("nvd")
     mode = "mod" if nvd_since else "pub"
-    since = nvd_since or "2019-01-01T00:00:00"
+    since = nvd_since or start_date
     try:
         vulns = [normalize_nvd(raw) for raw in fetch_nvd(since=since, mode=mode)]
     except Exception as e:
