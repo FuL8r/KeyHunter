@@ -31,6 +31,23 @@ def test_upsert_then_count_and_filter_search():
     assert [h.cve_id for h in hits] == ["CVE-1"]
 
 
+def test_ensure_collection_creates_payload_indexes():
+    from datetime import date
+    from vulnrag.models import AffectedProduct, Vulnerability
+    from vulnrag.clients import StubEmbedder
+    client = QdrantClient(":memory:")
+    store = VulnStore(client, "idx_test", 1024)
+    store.ensure_collection()
+    store.ensure_collection()  # idempotent, must not raise
+    emb = StubEmbedder(1024)
+    v = Vulnerability(cve_id="CVE-1", description="x",
+                      affected=[AffectedProduct(product="log4j")],
+                      published=date(2021,1,1), last_modified=date(2021,1,1))
+    store.upsert([v], emb.embed(["x"]))
+    hits = store.search(emb.embed(["x"])[0], product="log4j", top_k=5)
+    assert [h.cve_id for h in hits] == ["CVE-1"]
+
+
 def test_upsert_is_idempotent_by_cve_id():
     store = _store()
     emb = StubEmbedder(dim=1024)

@@ -28,6 +28,13 @@ class VulnStore:
                 self.collection,
                 vectors_config=qm.VectorParams(size=self.dim, distance=qm.Distance.COSINE),
             )
+        # Payload indexes for fast filtered search (idempotent — safe to re-run).
+        self.client.create_payload_index(
+            self.collection, field_name="products",
+            field_schema=qm.PayloadSchemaType.KEYWORD)
+        self.client.create_payload_index(
+            self.collection, field_name="is_kev",
+            field_schema=qm.PayloadSchemaType.BOOL)
 
     def _payload(self, v: Vulnerability) -> dict:
         products = sorted({a.product for a in v.affected})
