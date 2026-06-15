@@ -56,13 +56,6 @@ def _str_to_fallback(raw: str) -> "_Fallback":
     return _Fallback(tuple(segments))
 
 
-def _safe_parse(raw):
-    try:
-        return parse_version(raw), True
-    except Exception:
-        return None, False
-
-
 def in_range(version: str, ap: AffectedProduct) -> bool:
     """True if `version` falls inside the affected range described by `ap`.
     No bounds => the whole product is affected. Unparseable version => False."""
