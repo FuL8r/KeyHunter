@@ -36,9 +36,9 @@ def _affected(cve: dict) -> list[AffectedProduct]:
                 out.append(AffectedProduct(
                     vendor=vendor, product=product,
                     version_start=start,
-                    version_start_incl="versionStartIncluding" in m,
+                    version_start_incl=m.get("versionStartIncluding") is not None,
                     version_end=end,
-                    version_end_incl="versionEndIncluding" in m,
+                    version_end_incl=m.get("versionEndIncluding") is not None,
                 ))
     return out
 
