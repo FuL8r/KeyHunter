@@ -13,9 +13,14 @@ class MatchResult:
 def classify(hits: list[Hit], *, component: str | None, version: str | None) -> MatchResult:
     result = MatchResult()
     for hit in hits:
+        # When a component is asked for, only consider hits that actually concern it.
+        # (Semantic fallback in retrieve can surface unrelated CVEs — drop them so an
+        # unrelated open-ended range never produces a false "vulnerable".)
+        if component is not None and component not in hit.payload.get("products", []):
+            continue
         ranges = [AffectedProduct(**a) for a in hit.payload.get("affected", [])]
         if component is not None:
-            ranges = [r for r in ranges if r.product == component] or ranges
+            ranges = [r for r in ranges if r.product == component]
         if version is None:
             result.potential.append(hit)
             continue
