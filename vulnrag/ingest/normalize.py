@@ -64,7 +64,8 @@ def kev_cve_ids(kev_raw: dict) -> set[str]:
 
 
 def osv_fixed_versions(osv_records: list[dict]) -> dict[str, list[str]]:
-    """Map each aliased CVE id -> list of 'fixed' versions from OSV ranges."""
+    """Map each related CVE id -> list of 'fixed' versions from OSV ranges.
+    The CVE may appear as the record's own `id` or among its `aliases`."""
     out: dict[str, list[str]] = {}
     for rec in osv_records:
         fixed = []
@@ -73,10 +74,16 @@ def osv_fixed_versions(osv_records: list[dict]) -> dict[str, list[str]]:
                 for ev in rng.get("events", []):
                     if "fixed" in ev:
                         fixed.append(ev["fixed"])
+        cve_keys = set()
+        rid = rec.get("id", "")
+        if isinstance(rid, str) and rid.startswith("CVE-"):
+            cve_keys.add(rid)
         for alias in rec.get("aliases", []):
-            if alias.startswith("CVE-"):
-                out.setdefault(alias, [])
-                out[alias].extend(f for f in fixed if f not in out[alias])
+            if isinstance(alias, str) and alias.startswith("CVE-"):
+                cve_keys.add(alias)
+        for key in cve_keys:
+            out.setdefault(key, [])
+            out[key].extend(f for f in fixed if f not in out[key])
     return out
 
 
