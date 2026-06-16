@@ -55,3 +55,12 @@ def test_answer_safe_when_version_out_of_range():
     assert result.verdict == "safe"
     assert result.cves == []
     assert llm.last_prompt is None  # LLM NOT called when no CVEs to ground on
+
+
+def test_answer_tolerates_typo_in_component():
+    store, emb = _store()
+    llm = StubLLM(reply="ok")
+    # "log4jj" is a typo for "log4j": difflib ratio=0.909, resolves at cutoff=0.85
+    result = answer("Безопасен ли log4jj 2.14.1?", embedder=emb, store=store, llm=llm)
+    assert result.verdict == "vulnerable"
+    assert result.cves[0]["cve_id"] == "CVE-2021-44228"

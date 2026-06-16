@@ -4,6 +4,7 @@ from vulnrag.store import VulnStore
 from vulnrag.query.parse import detect_lang, extract_component_version
 from vulnrag.query.retrieve import retrieve
 from vulnrag.query.match import classify
+from vulnrag.query.resolve import resolve_component
 
 SYSTEM = (
     "You are a security assistant. Answer ONLY from the provided CVE context. "
@@ -38,7 +39,9 @@ def answer(question: str, *, embedder: EmbeddingClient, store: VulnStore,
            llm: LLMClient, top_k: int = 8) -> QueryResult:
     lang = detect_lang(question)
     component, version = extract_component_version(question)
-    hits = retrieve(question, embedder=embedder, store=store, top_k=top_k)
+    component = resolve_component(component, store.distinct_products())
+    hits = retrieve(question, embedder=embedder, store=store, top_k=top_k,
+                    component=component)
     result = classify(hits, component=component, version=version)
     relevant = result.confirmed + result.potential
 
