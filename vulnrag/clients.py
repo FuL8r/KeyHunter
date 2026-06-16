@@ -38,9 +38,9 @@ class StubLLM:
 
 
 class OllamaEmbedder:
-    def __init__(self, model: str, host: str):
+    def __init__(self, model: str, host: str, timeout: float = 120):
         import ollama
-        self._client = ollama.Client(host=host)
+        self._client = ollama.Client(host=host, timeout=timeout)
         self.model = model
 
     def embed(self, texts: list[str]) -> list[list[float]]:
@@ -49,9 +49,9 @@ class OllamaEmbedder:
 
 
 class OllamaLLM:
-    def __init__(self, model: str, host: str):
+    def __init__(self, model: str, host: str, timeout: float = 300):
         import ollama
-        self._client = ollama.Client(host=host)
+        self._client = ollama.Client(host=host, timeout=timeout)
         self.model = model
 
     def complete(self, *, system: str, prompt: str) -> str:
