@@ -1,16 +1,17 @@
 import httpx
 
-OSV_URL = "https://api.osv.dev/v1/query"
+# Base URL for the OSV "get vulnerability by id" endpoint: GET {OSV_URL}/{id}
+OSV_URL = "https://api.osv.dev/v1/vulns"
 
 
 def fetch_osv(cve_ids: list[str]) -> list[dict]:
-    """Query OSV by CVE id. Returns raw OSV vuln records (deduped by id)."""
-    seen: dict[str, dict] = {}
+    """Fetch OSV records by CVE id via GET /v1/vulns/{id}. 404 means OSV has no
+    record for that CVE (skipped). Returns the raw OSV records."""
+    out: list[dict] = []
     for cve_id in cve_ids:
-        resp = httpx.post(OSV_URL, json={"id": cve_id}, timeout=60)
+        resp = httpx.get(f"{OSV_URL}/{cve_id}", timeout=60)
         if resp.status_code == 404:
             continue
         resp.raise_for_status()
-        for rec in resp.json().get("vulns", []):
-            seen[rec["id"]] = rec
-    return list(seen.values())
+        out.append(resp.json())
+    return out
