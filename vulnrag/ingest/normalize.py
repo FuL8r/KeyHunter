@@ -71,6 +71,9 @@ def osv_fixed_versions(osv_records: list[dict]) -> dict[str, list[str]]:
         fixed = []
         for aff in rec.get("affected", []):
             for rng in aff.get("ranges", []):
+                # Skip GIT ranges: their "fixed" events are commit hashes, not versions.
+                if rng.get("type") == "GIT":
+                    continue
                 for ev in rng.get("events", []):
                     if "fixed" in ev:
                         fixed.append(ev["fixed"])

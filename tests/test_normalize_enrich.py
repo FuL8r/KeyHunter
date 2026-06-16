@@ -24,6 +24,16 @@ def test_osv_fixed_versions_keyed_by_record_id():
     assert mapping["CVE-2021-44228"] == ["2.15.0"]
 
 
+def test_osv_fixed_versions_skips_git_ranges():
+    # GIT ranges carry commit hashes as "fixed"; only version ranges should count.
+    rec = {"id": "CVE-2021-44228", "affected": [
+        {"ranges": [{"type": "GIT", "events": [{"fixed": "38513a7dcommit"}]}]},
+        {"ranges": [{"type": "ECOSYSTEM", "events": [{"fixed": "2.15.0"}]}]},
+    ]}
+    mapping = osv_fixed_versions([rec])
+    assert mapping["CVE-2021-44228"] == ["2.15.0"]
+
+
 def test_merge_sets_kev_and_fixed(kev_raw, osv_raw):
     v = merge_enrichment(_base(), kev_ids=kev_cve_ids(kev_raw),
                          osv_fixed=osv_fixed_versions([osv_raw]))
