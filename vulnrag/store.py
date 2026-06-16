@@ -21,6 +21,7 @@ class VulnStore:
         self.client = client
         self.collection = collection
         self.dim = dim
+        self._products_cache: set[str] | None = None
 
     def ensure_collection(self):
         if not self.client.collection_exists(self.collection):
@@ -58,6 +59,24 @@ class VulnStore:
             for v, vec in zip(vulns, vectors)
         ]
         self.client.upsert(self.collection, points=points)
+
+    def distinct_products(self, refresh: bool = False) -> set[str]:
+        """All distinct product names in the collection (cached after first call)."""
+        if self._products_cache is not None and not refresh:
+            return self._products_cache
+        products: set[str] = set()
+        offset = None
+        while True:
+            points, offset = self.client.scroll(
+                self.collection, limit=1000, with_payload=["products"],
+                with_vectors=False, offset=offset)
+            for p in points:
+                for prod in (p.payload or {}).get("products", []):
+                    products.add(prod)
+            if offset is None:
+                break
+        self._products_cache = products
+        return products
 
     def count(self) -> int:
         return self.client.count(self.collection).count

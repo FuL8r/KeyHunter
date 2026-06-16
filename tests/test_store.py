@@ -56,3 +56,23 @@ def test_upsert_is_idempotent_by_cve_id():
     store.upsert([v], vec)
     store.upsert([v], vec)
     assert store.count() == 1
+
+
+def test_distinct_products():
+    from datetime import date
+    from vulnrag.models import AffectedProduct, Vulnerability
+    from vulnrag.clients import StubEmbedder
+    client = QdrantClient(":memory:")
+    store = VulnStore(client, "dp_test", 1024)
+    store.ensure_collection()
+    emb = StubEmbedder(1024)
+    vulns = [
+        Vulnerability(cve_id="CVE-1", description="a",
+                      affected=[AffectedProduct(product="samtools")],
+                      published=date(2021,1,1), last_modified=date(2021,1,1)),
+        Vulnerability(cve_id="CVE-2", description="b",
+                      affected=[AffectedProduct(product="log4j")],
+                      published=date(2021,1,1), last_modified=date(2021,1,1)),
+    ]
+    store.upsert(vulns, emb.embed(["a","b"]))
+    assert store.distinct_products() == {"samtools", "log4j"}
