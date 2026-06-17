@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # vulnrag
 
 RAG-система для проверки уязвимостей через локальную открытую LLM. Отвечает на вопросы
@@ -172,3 +173,7 @@ cp .env.example .env
 ```
 Тесты не требуют сети/сервисов: Qdrant используется in-memory (`:memory:`), Ollama
 подменяется фейками.
+=======
+# KeyHunter
+An AI model for detecting secrets, API keys, tokens, passwords, and other sensitive credentials in source code.
+>>>>>>> d96eac53c0349478df42e05bcbd98ef824b265ac
